@@ -668,16 +668,18 @@
 				"type": "AzureSqlTable",
 				"schema": [
 					{
-						"name": "EmployeeID",
+						"name": "FiscalYear",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AgencyName",
 						"type": "varchar"
 					},
 					{
-						"name": "LastName",
-						"type": "varchar"
-					},
-					{
-						"name": "FirstName",
-						"type": "varchar"
+						"name": "TotalPaid",
+						"type": "float",
+						"precision": 15
 					}
 				],
 				"typeProperties": {
@@ -720,7 +722,34 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/NYCPayroll2021')]",
+			"name": "[concat(parameters('factoryName'), '/dirstaging')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "dirstaging"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dataflow Summary')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -729,13 +758,11 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "DataLakeNYCPayroll2021",
+								"referenceName": "SQLDBNYCPayrollData2020",
 								"type": "DatasetReference"
 							},
-							"name": "DataLakeNYCPayroll2021"
-						}
-					],
-					"sinks": [
+							"name": "SQLDBNYCPayrollData2020"
+						},
 						{
 							"dataset": {
 								"referenceName": "SQLDBNYCPayrollData2021",
@@ -744,24 +771,56 @@
 							"name": "SQLDBNYCPayrollData2021"
 						}
 					],
-					"transformations": [],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dirstaging",
+								"type": "DatasetReference"
+							},
+							"name": "dirstaging"
+						},
+						{
+							"dataset": {
+								"referenceName": "SQLDBNYCPayrollSummary",
+								"type": "DatasetReference"
+							},
+							"name": "SQLDBNYCPayrollSummary"
+						}
+					],
+					"transformations": [
+						{
+							"name": "union1"
+						},
+						{
+							"name": "filterFiscalYear"
+						},
+						{
+							"name": "derivedColumnTotalPaid"
+						},
+						{
+							"name": "aggregateTotalPaid"
+						}
+					],
 					"scriptLines": [
+						"parameters{",
+						"     dataflow_param_fiscalyear as integer (2020)",
+						"}",
 						"source(output(",
-						"          FiscalYear as short,",
-						"          PayrollNumber as short,",
+						"          FiscalYear as integer,",
+						"          PayrollNumber as integer,",
 						"          AgencyID as string,",
 						"          AgencyName as string,",
-						"          EmployeeID as integer,",
+						"          EmployeeID as string,",
 						"          LastName as string,",
 						"          FirstName as string,",
 						"          AgencyStartDate as date,",
 						"          WorkLocationBorough as string,",
-						"          TitleCode as integer,",
+						"          TitleCode as string,",
 						"          TitleDescription as string,",
 						"          LeaveStatusasofJune30 as string,",
 						"          BaseSalary as double,",
 						"          PayBasis as string,",
-						"          RegularHours as short,",
+						"          RegularHours as double,",
 						"          RegularGrossPaid as double,",
 						"          OTHours as double,",
 						"          TotalOTPaid as double,",
@@ -769,10 +828,9 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> DataLakeNYCPayroll2021",
-						"DataLakeNYCPayroll2021 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SQLDBNYCPayrollData2020",
+						"source(output(",
 						"          FiscalYear as integer,",
 						"          PayrollNumber as integer,",
 						"          AgencyCode as string,",
@@ -793,6 +851,37 @@
 						"          TotalOTPaid as double,",
 						"          TotalOtherPay as double",
 						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SQLDBNYCPayrollData2021",
+						"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
+						"union1 filter(toInteger(FiscalYear) >= $dataflow_param_fiscalyear) ~> filterFiscalYear",
+						"filterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid+TotalOtherPay) ~> derivedColumnTotalPaid",
+						"derivedColumnTotalPaid aggregate(groupBy(AgencyName,",
+						"          FiscalYear),",
+						"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
+						"aggregateTotalPaid sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     truncate: true,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          AgencyName,",
+						"          FiscalYear,",
+						"          TotalPaid",
+						"     ),",
+						"     format: 'table') ~> dirstaging",
+						"aggregateTotalPaid sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          FiscalYear as integer,",
+						"          AgencyName as string,",
+						"          TotalPaid as double",
+						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
@@ -800,34 +889,15 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          FiscalYear,",
-						"          PayrollNumber,",
-						"          AgencyCode = AgencyName,",
-						"          AgencyName,",
-						"          EmployeeID,",
-						"          LastName,",
-						"          FirstName,",
-						"          AgencyStartDate,",
-						"          WorkLocationBorough,",
-						"          TitleCode,",
-						"          TitleDescription,",
-						"          LeaveStatusasofJune30,",
-						"          BaseSalary,",
-						"          PayBasis,",
-						"          RegularHours,",
-						"          RegularGrossPaid,",
-						"          OTHours,",
-						"          TotalOTPaid,",
-						"          TotalOtherPay",
-						"     )) ~> SQLDBNYCPayrollData2021"
+						"     errorHandlingOption: 'stopOnFirstError') ~> SQLDBNYCPayrollSummary"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DataLakeNYCPayroll2021')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2021')]"
+				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2020')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2021')]",
+				"[concat(variables('factoryId'), '/datasets/dirstaging')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollSummary')]"
 			]
 		},
 		{
@@ -939,6 +1009,117 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DataLakeNYCPayroll2020')]",
 				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2020')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/NYCPayroll2021')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataLakeNYCPayroll2021",
+								"type": "DatasetReference"
+							},
+							"name": "DataLakeNYCPayroll2021"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SQLDBNYCPayrollData2021",
+								"type": "DatasetReference"
+							},
+							"name": "SQLDBNYCPayrollData2021"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          FiscalYear as short,",
+						"          PayrollNumber as short,",
+						"          AgencyID as string,",
+						"          AgencyName as string,",
+						"          EmployeeID as integer,",
+						"          LastName as string,",
+						"          FirstName as string,",
+						"          AgencyStartDate as date,",
+						"          WorkLocationBorough as string,",
+						"          TitleCode as integer,",
+						"          TitleDescription as string,",
+						"          LeaveStatusasofJune30 as string,",
+						"          BaseSalary as double,",
+						"          PayBasis as string,",
+						"          RegularHours as short,",
+						"          RegularGrossPaid as double,",
+						"          OTHours as double,",
+						"          TotalOTPaid as double,",
+						"          TotalOtherPay as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> DataLakeNYCPayroll2021",
+						"DataLakeNYCPayroll2021 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          FiscalYear as integer,",
+						"          PayrollNumber as integer,",
+						"          AgencyCode as string,",
+						"          AgencyName as string,",
+						"          EmployeeID as string,",
+						"          LastName as string,",
+						"          FirstName as string,",
+						"          AgencyStartDate as date,",
+						"          WorkLocationBorough as string,",
+						"          TitleCode as string,",
+						"          TitleDescription as string,",
+						"          LeaveStatusasofJune30 as string,",
+						"          BaseSalary as double,",
+						"          PayBasis as string,",
+						"          RegularHours as double,",
+						"          RegularGrossPaid as double,",
+						"          OTHours as double,",
+						"          TotalOTPaid as double,",
+						"          TotalOtherPay as double",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          FiscalYear,",
+						"          PayrollNumber,",
+						"          AgencyCode = AgencyName,",
+						"          AgencyName,",
+						"          EmployeeID,",
+						"          LastName,",
+						"          FirstName,",
+						"          AgencyStartDate,",
+						"          WorkLocationBorough,",
+						"          TitleCode,",
+						"          TitleDescription,",
+						"          LeaveStatusasofJune30,",
+						"          BaseSalary,",
+						"          PayBasis,",
+						"          RegularHours,",
+						"          RegularGrossPaid,",
+						"          OTHours,",
+						"          TotalOTPaid,",
+						"          TotalOtherPay",
+						"     )) ~> SQLDBNYCPayrollData2021"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DataLakeNYCPayroll2021')]",
+				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2021')]"
 			]
 		},
 		{
