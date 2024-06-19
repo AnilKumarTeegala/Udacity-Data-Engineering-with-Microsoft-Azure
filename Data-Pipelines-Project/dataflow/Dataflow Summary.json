@@ -22,13 +22,17 @@
 			"sinks": [
 				{
 					"dataset": {
+						"referenceName": "dirstaging",
+						"type": "DatasetReference"
+					},
+					"name": "dirstaging"
+				},
+				{
+					"dataset": {
 						"referenceName": "SQLDBNYCPayrollSummary",
 						"type": "DatasetReference"
 					},
 					"name": "SQLDBNYCPayrollSummary"
-				},
-				{
-					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -107,6 +111,20 @@
 				"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
 				"aggregateTotalPaid sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          AgencyName,",
+				"          FiscalYear,",
+				"          TotalPaid",
+				"     ),",
+				"     format: 'table') ~> dirstaging",
+				"aggregateTotalPaid sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
 				"     input(",
 				"          FiscalYear as integer,",
 				"          AgencyName as string,",
@@ -116,20 +134,10 @@
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
-				"     truncate:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          FiscalYear,",
-				"          AgencyName,",
-				"          TotalPaid",
-				"     )) ~> SQLDBNYCPayrollSummary",
-				"aggregateTotalPaid sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError') ~> SQLDBNYCPayrollSummary"
 			]
 		}
 	}
