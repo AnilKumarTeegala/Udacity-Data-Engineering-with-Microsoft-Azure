@@ -21,6 +21,10 @@
 			],
 			"sinks": [
 				{
+					"dataset": {
+						"referenceName": "dirstaging",
+						"type": "DatasetReference"
+					},
 					"name": "dirstaging"
 				},
 				{
@@ -109,6 +113,7 @@
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     format: 'table') ~> dirstaging",
