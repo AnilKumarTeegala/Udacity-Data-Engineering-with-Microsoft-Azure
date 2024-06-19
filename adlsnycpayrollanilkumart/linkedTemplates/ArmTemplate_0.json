@@ -750,7 +750,11 @@
 								"referenceName": "AzureDataLakeStorage1",
 								"type": "LinkedServiceReference"
 							},
-							"name": "dirstaging"
+							"name": "dirstaging",
+							"rejectedDataLinkedService": {
+								"referenceName": "AzureDataLakeStorage1",
+								"type": "LinkedServiceReference"
+							}
 						},
 						{
 							"dataset": {
@@ -843,12 +847,14 @@
 						"     escapeChar: '\\\\',",
 						"     quoteChar: '\\\"',",
 						"     columnNamesAsHeader: false,",
+						"     partitionFileNames:['NYCPayrollSummary.csv'],",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1) ~> dirstaging",
+						"     saveOrder: 1,",
+						"     partitionBy('hash', 1)) ~> dirstaging",
 						"aggregateTotalPaid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
