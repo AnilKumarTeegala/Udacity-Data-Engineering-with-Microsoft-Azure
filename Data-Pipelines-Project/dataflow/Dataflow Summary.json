@@ -25,10 +25,13 @@
 					"name": "union1"
 				},
 				{
-					"name": "filter1"
+					"name": "filterFiscalYear"
 				},
 				{
-					"name": "TotalPaid"
+					"name": "derivedColumnTotalPaid"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -87,8 +90,9 @@
 				"     format: 'table') ~> SQLDBNYCPayrollData2021",
 				"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
 				"union1 filter(toInteger(FiscalYear) >= $dataflow_param_fiscalyear",
-				") ~> filter1",
-				"filter1 derive(TotalPaid = ERROR_FUNCTION('')) ~> TotalPaid"
+				") ~> filterFiscalYear",
+				"filterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid+TotalOtherPay) ~> derivedColumnTotalPaid",
+				"derivedColumnTotalPaid aggregate() ~> aggregate1"
 			]
 		}
 	}
