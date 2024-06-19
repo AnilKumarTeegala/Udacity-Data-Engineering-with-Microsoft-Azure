@@ -23,6 +23,9 @@
 			"transformations": [
 				{
 					"name": "union1"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -76,7 +79,9 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> SQLDBNYCPayrollData2021",
-				"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1"
+				"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
+				"union1 filter(toInteger(FicalYear) >= $dataflow_param_fiscalyear",
+				") ~> filter1"
 			]
 		}
 	}
