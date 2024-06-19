@@ -27,7 +27,7 @@
 				}
 			},
 			{
-				"name": "Data flow2",
+				"name": "Title",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -39,6 +39,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataflow": {
+						"referenceName": "NYCPayrollTITLEMD",
+						"type": "DataFlowReference"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
@@ -71,7 +75,7 @@
 				}
 			},
 			{
-				"name": "Copy data1",
+				"name": "NYCPayroll2020",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -83,11 +87,28 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
 					"enableStaging": false
-				}
+				},
+				"inputs": [
+					{
+						"referenceName": "DataLakeNYCPayroll2020",
+						"type": "DatasetReference"
+					}
+				]
 			},
 			{
-				"name": "Data flow4",
+				"name": "NYCPayroll2021",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
