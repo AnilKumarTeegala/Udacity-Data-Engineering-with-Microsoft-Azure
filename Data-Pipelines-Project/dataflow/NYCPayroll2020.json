@@ -18,7 +18,11 @@
 						"referenceName": "SQLDBNYCPayrollData2020",
 						"type": "DatasetReference"
 					},
-					"name": "SQLDBNYCPayrollData2020"
+					"name": "SQLDBNYCPayrollData2020",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [],
@@ -33,7 +37,7 @@
 				"          FirstName as string,",
 				"          AgencyStartDate as date,",
 				"          WorkLocationBorough as string,",
-				"          TitleCode as integer,",
+				"          TitleCode as string,",
 				"          TitleDescription as string,",
 				"          LeaveStatusasofJune30 as string,",
 				"          BaseSalary as double,",
