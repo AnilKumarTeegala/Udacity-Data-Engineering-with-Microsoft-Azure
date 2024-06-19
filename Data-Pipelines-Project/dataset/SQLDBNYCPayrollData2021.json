@@ -1,5 +1,5 @@
 {
-	"name": "SQLDBNYCPayrollData2020",
+	"name": "SQLDBNYCPayrollData2021",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase1",
@@ -19,7 +19,7 @@
 				"precision": 10
 			},
 			{
-				"name": "AgencyID",
+				"name": "AgencyCode",
 				"type": "varchar"
 			},
 			{
@@ -95,7 +95,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "NYC_Payroll_Data_2020"
+			"table": "NYC_Payroll_Data_2021"
 		}
 	}
 }
