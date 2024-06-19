@@ -9,16 +9,18 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "EmployeeID",
+				"name": "FiscalYear",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "AgencyName",
 				"type": "varchar"
 			},
 			{
-				"name": "LastName",
-				"type": "varchar"
-			},
-			{
-				"name": "FirstName",
-				"type": "varchar"
+				"name": "TotalPaid",
+				"type": "float",
+				"precision": 15
 			}
 		],
 		"typeProperties": {
