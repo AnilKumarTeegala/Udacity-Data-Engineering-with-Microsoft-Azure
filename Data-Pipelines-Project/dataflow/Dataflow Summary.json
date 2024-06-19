@@ -21,10 +21,6 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "dirstaging",
-						"type": "DatasetReference"
-					},
 					"name": "dirstaging"
 				},
 				{
