@@ -21,10 +21,6 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "dirstaging",
-						"type": "DatasetReference"
-					},
 					"name": "dirstaging"
 				},
 				{
@@ -111,17 +107,10 @@
 				"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
 				"aggregateTotalPaid sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     truncate: true,",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          AgencyName,",
-				"          FiscalYear,",
-				"          TotalPaid",
-				"     ),",
+				"     preCommands: [],",
+				"     postCommands: [],",
 				"     format: 'table') ~> dirstaging",
 				"aggregateTotalPaid sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
