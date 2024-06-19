@@ -92,7 +92,9 @@
 				"union1 filter(toInteger(FiscalYear) >= $dataflow_param_fiscalyear",
 				") ~> filterFiscalYear",
 				"filterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid+TotalOtherPay) ~> derivedColumnTotalPaid",
-				"derivedColumnTotalPaid aggregate() ~> aggregate1"
+				"derivedColumnTotalPaid aggregate(groupBy(AgencyName,",
+				"          FiscalYear),",
+				"     TotalPaid = sum(TotalPaid)) ~> aggregate1"
 			]
 		}
 	}
