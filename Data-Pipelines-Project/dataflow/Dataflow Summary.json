@@ -83,7 +83,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> SQLDBNYCPayrollData2021",
 				"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
-				"union1 filter(toInteger(FiscalYear) >= $dataflow_param_fiscalyear",
+				"union1 filter(toInteger(FiscalYear) >=$dataflow_param_fiscalyear",
 				") ~> filter1"
 			]
 		}
