@@ -1,5 +1,5 @@
 {
-	"name": "NYCEmpMaster",
+	"name": "NYCPayrollEMPMD",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -18,7 +18,11 @@
 						"referenceName": "SQLDBNYCPayrollEMPMD",
 						"type": "DatasetReference"
 					},
-					"name": "SQLDBNYCPayrollAGENCYMD"
+					"name": "SQLDBNYCPayrollEMPMD",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					}
 				}
 			],
 			"transformations": [],
@@ -47,9 +51,10 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          AgencyID,",
-				"          AgencyName",
-				"     )) ~> SQLDBNYCPayrollAGENCYMD"
+				"          EmployeeID,",
+				"          LastName,",
+				"          FirstName",
+				"     )) ~> SQLDBNYCPayrollEMPMD"
 			]
 		}
 	}
