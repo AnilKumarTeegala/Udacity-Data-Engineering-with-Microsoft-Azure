@@ -1,0 +1,60 @@
+{
+	"name": "NYCPayrollEMPMD_copy1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataLakeTitleMaster",
+						"type": "DatasetReference"
+					},
+					"name": "DataLakeEmpMaster"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLDBNYCPayrollEMPMD",
+						"type": "DatasetReference"
+					},
+					"name": "SQLDBNYCPayrollEMPMD",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DataLakeEmpMaster",
+				"DataLakeEmpMaster sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          EmployeeID,",
+				"          LastName,",
+				"          FirstName",
+				"     )) ~> SQLDBNYCPayrollEMPMD"
+			]
+		}
+	}
+}
