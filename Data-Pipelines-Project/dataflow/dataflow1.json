@@ -1,5 +1,5 @@
 {
-	"name": "Dataflow Summary",
+	"name": "dataflow1",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -29,6 +29,9 @@
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     dataflow_param_fiscalyear as integer (2020)",
+				"}",
 				"source(output(",
 				"          FiscalYear as integer,",
 				"          PayrollNumber as integer,",
@@ -80,7 +83,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> SQLDBNYCPayrollData2021",
 				"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
-				"union1 filter(toInteger(FicalYear) >= $dataflow_param_fiscalyear",
+				"union1 filter(toInteger(fic) >= $dataflow_param_fiscalyear",
 				") ~> filter1"
 			]
 		}
