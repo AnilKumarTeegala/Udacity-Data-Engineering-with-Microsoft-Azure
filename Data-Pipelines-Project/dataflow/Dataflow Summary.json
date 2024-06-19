@@ -26,6 +26,9 @@
 						"type": "DatasetReference"
 					},
 					"name": "SQLDBNYCPayrollSummary"
+				},
+				{
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -102,7 +105,7 @@
 				"filterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid+TotalOtherPay) ~> derivedColumnTotalPaid",
 				"derivedColumnTotalPaid aggregate(groupBy(AgencyName,",
 				"          FiscalYear),",
-				"     {sum(TotalPaid)} = sum(TotalPaid)) ~> aggregate1",
+				"     TotalPaid = sum(TotalPaid)) ~> aggregate1",
 				"aggregate1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -117,7 +120,16 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> SQLDBNYCPayrollSummary"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          FiscalYear,",
+				"          AgencyName,",
+				"          TotalPaid",
+				"     )) ~> SQLDBNYCPayrollSummary",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
