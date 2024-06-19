@@ -164,19 +164,19 @@
 					{
 						"activity": "Employee",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					},
 					{
 						"activity": "Title",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					},
 					{
 						"activity": "Agency",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					}
 				],
