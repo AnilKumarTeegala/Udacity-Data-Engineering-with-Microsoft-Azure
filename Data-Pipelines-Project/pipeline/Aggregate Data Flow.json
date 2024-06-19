@@ -75,7 +75,7 @@
 				}
 			},
 			{
-				"name": "NYCPayroll2020",
+				"name": "NYCPayroll20200",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -205,7 +205,7 @@
 						]
 					},
 					{
-						"activity": "NYCPayroll2020",
+						"activity": "NYCPayroll20200",
 						"dependencyConditions": [
 							"Succeeded"
 						]
