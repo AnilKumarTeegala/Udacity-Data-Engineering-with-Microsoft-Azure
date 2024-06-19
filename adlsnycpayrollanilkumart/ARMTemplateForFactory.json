@@ -978,33 +978,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dirstaging')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "dirstaging"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1059,9 +1032,9 @@
 					],
 					"sinks": [
 						{
-							"dataset": {
-								"referenceName": "dirstaging",
-								"type": "DatasetReference"
+							"linkedService": {
+								"referenceName": "AzureDataLakeStorage1",
+								"type": "LinkedServiceReference"
 							},
 							"name": "dirstaging"
 						},
@@ -1149,18 +1122,19 @@
 						"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
 						"aggregateTotalPaid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     fileSystem: 'dirstaging',",
 						"     truncate: true,",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          AgencyName,",
-						"          FiscalYear,",
-						"          TotalPaid",
-						"     ),",
-						"     format: 'table') ~> dirstaging",
+						"     saveOrder: 1) ~> dirstaging",
 						"aggregateTotalPaid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -1182,7 +1156,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2020')]",
 				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2021')]",
-				"[concat(variables('factoryId'), '/datasets/dirstaging')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]",
 				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollSummary')]"
 			]
 		},
