@@ -21,6 +21,10 @@
 			],
 			"sinks": [
 				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
 					"name": "dirstaging"
 				},
 				{
@@ -107,12 +111,19 @@
 				"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
 				"aggregateTotalPaid sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1,",
+				"     format: 'delimited',",
+				"     fileSystem: 'dirstaging',",
+				"     truncate: true,",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: false,",
+				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
-				"     format: 'table') ~> dirstaging",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> dirstaging",
 				"aggregateTotalPaid sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
