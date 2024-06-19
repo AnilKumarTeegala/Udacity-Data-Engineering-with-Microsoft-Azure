@@ -1121,8 +1121,8 @@
 						"SQLDBNYCPayrollData2020, SQLDBNYCPayrollData2021 union(byName: false)~> union1",
 						"union1 filter(toInteger(FiscalYear) >= $dataflow_param_fiscalyear) ~> filterFiscalYear",
 						"filterFiscalYear derive(TotalPaid = RegularGrossPaid + TotalOTPaid+TotalOtherPay) ~> derivedColumnTotalPaid",
-						"derivedColumnTotalPaid aggregate(groupBy(AgencyName,",
-						"          FiscalYear),",
+						"derivedColumnTotalPaid aggregate(groupBy(FiscalYear,",
+						"          AgencyName),",
 						"     TotalPaid = sum(TotalPaid)) ~> aggregateTotalPaid",
 						"aggregateTotalPaid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -1188,7 +1188,11 @@
 								"referenceName": "SQLDBNYCPayrollData2020",
 								"type": "DatasetReference"
 							},
-							"name": "SQLDBNYCPayrollData2020"
+							"name": "SQLDBNYCPayrollData2020",
+							"rejectedDataLinkedService": {
+								"referenceName": "AzureDataLakeStorage1",
+								"type": "LinkedServiceReference"
+							}
 						}
 					],
 					"transformations": [],
@@ -1196,14 +1200,14 @@
 						"source(output(",
 						"          FiscalYear as short,",
 						"          PayrollNumber as short,",
-						"          AgencyID as short,",
+						"          AgencyID as string,",
 						"          AgencyName as string,",
-						"          EmployeeID as integer,",
+						"          EmployeeID as string,",
 						"          LastName as string,",
 						"          FirstName as string,",
 						"          AgencyStartDate as date,",
 						"          WorkLocationBorough as string,",
-						"          TitleCode as integer,",
+						"          TitleCode as string,",
 						"          TitleDescription as string,",
 						"          LeaveStatusasofJune30 as string,",
 						"          BaseSalary as double,",
@@ -1253,7 +1257,7 @@
 						"          PayrollNumber,",
 						"          AgencyID,",
 						"          AgencyName,",
-						"          EmployeeID = AgencyID,",
+						"          EmployeeID,",
 						"          LastName,",
 						"          FirstName,",
 						"          AgencyStartDate,",
@@ -1274,7 +1278,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DataLakeNYCPayroll2020')]",
-				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2020')]"
+				"[concat(variables('factoryId'), '/datasets/SQLDBNYCPayrollData2020')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
 			]
 		},
 		{
@@ -1309,12 +1314,12 @@
 						"          PayrollNumber as short,",
 						"          AgencyID as string,",
 						"          AgencyName as string,",
-						"          EmployeeID as integer,",
+						"          EmployeeID as string,",
 						"          LastName as string,",
 						"          FirstName as string,",
 						"          AgencyStartDate as date,",
 						"          WorkLocationBorough as string,",
-						"          TitleCode as integer,",
+						"          TitleCode as string,",
 						"          TitleDescription as string,",
 						"          LeaveStatusasofJune30 as string,",
 						"          BaseSalary as double,",
