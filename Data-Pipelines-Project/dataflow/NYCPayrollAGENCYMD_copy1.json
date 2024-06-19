@@ -1,15 +1,15 @@
 {
-	"name": "NYCPayrollAGENCYMD",
+	"name": "NYCPayrollAGENCYMD_copy1",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "DataLakeAgencyMaster",
+						"referenceName": "DataLakeEmpMaster",
 						"type": "DatasetReference"
 					},
-					"name": "DataLakeAgencyMaster"
+					"name": "DataLakeEmpMaster"
 				}
 			],
 			"sinks": [
@@ -24,13 +24,14 @@
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
-				"          AgencyID as string,",
-				"          AgencyName as string",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> DataLakeAgencyMaster",
-				"DataLakeAgencyMaster sink(allowSchemaDrift: true,",
+				"     ignoreNoFilesFound: false) ~> DataLakeEmpMaster",
+				"DataLakeEmpMaster sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          AgencyID as string,",

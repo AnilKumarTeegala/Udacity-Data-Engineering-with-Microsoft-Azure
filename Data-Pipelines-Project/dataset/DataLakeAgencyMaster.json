@@ -20,15 +20,11 @@
 		},
 		"schema": [
 			{
-				"name": "EmployeeID",
+				"name": "AgencyID",
 				"type": "String"
 			},
 			{
-				"name": "LastName",
-				"type": "String"
-			},
-			{
-				"name": "FirstName",
+				"name": "AgencyName",
 				"type": "String"
 			}
 		]
