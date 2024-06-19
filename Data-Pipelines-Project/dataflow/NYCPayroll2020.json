@@ -18,33 +18,12 @@
 						"referenceName": "SQLDBNYCPayrollData2020",
 						"type": "DatasetReference"
 					},
-					"name": "SQLDBNYCPayrollData2021"
+					"name": "SQLDBNYCPayrollData2020"
 				}
 			],
 			"transformations": [],
 			"scriptLines": [
-				"source(output(",
-				"          FiscalYear as string,",
-				"          PayrollNumber as string,",
-				"          AgencyID as string,",
-				"          AgencyName as string,",
-				"          EmployeeID as string,",
-				"          LastName as string,",
-				"          FirstName as string,",
-				"          AgencyStartDate as string,",
-				"          WorkLocationBorough as string,",
-				"          TitleCode as string,",
-				"          TitleDescription as string,",
-				"          LeaveStatusasofJune30 as string,",
-				"          BaseSalary as string,",
-				"          PayBasis as string,",
-				"          RegularHours as string,",
-				"          RegularGrossPaid as string,",
-				"          OTHours as string,",
-				"          TotalOTPaid as string,",
-				"          TotalOtherPay as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> DataLakeNYCPayroll2020",
 				"DataLakeNYCPayroll2020 sink(allowSchemaDrift: true,",
@@ -89,7 +68,7 @@
 				"          TitleDescription,",
 				"          LeaveStatusasofJune30,",
 				"          PayBasis",
-				"     )) ~> SQLDBNYCPayrollData2021"
+				"     )) ~> SQLDBNYCPayrollData2020"
 			]
 		}
 	}
